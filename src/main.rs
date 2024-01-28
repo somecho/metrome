@@ -9,6 +9,7 @@ fn main() {
 
     let toks = scan("q =".to_string()).unwrap();
     let score = Score::new(toks);
+    score.unwrap(); 
 
     // println!("{:?}", output);
 }

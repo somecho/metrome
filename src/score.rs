@@ -1,4 +1,7 @@
-use crate::{error::ParseError, scanner::Token};
+use crate::{
+    error::{MetrumError, ParseError},
+    scanner::Token,
+};
 
 pub struct Tempo {
     pub beat: (u16, u16),
@@ -31,11 +34,11 @@ impl Bar {
 
 #[derive(Debug)]
 pub struct Score {
-    bars: Vec<Bar>,
+    pub bars: Vec<Bar>,
 }
 
 impl Score {
-    pub fn new(tokens: Vec<Token>) -> Result<Self, ParseError> {
+    pub fn new(tokens: Vec<Token>) -> Result<Self, MetrumError> {
         let mut tokens = tokens.iter().peekable();
         let mut bars: Vec<Bar> = Vec::new();
         let mut bar = Bar::new();
@@ -60,11 +63,26 @@ impl Score {
                                     tempo = Tempo::new((*top, *bottom), *n);
                                 }
                                 _ => {
-                                    return Err(ParseError::MissingTempoSpecifier);
+                                    return Err(MetrumError::ParseError(
+                                        ParseError::MissingTempoSpecifier,
+                                    ));
                                 }
                             },
                             None => {
-                                return Err(ParseError::MissingTempoSpecifier);
+                                return Err(MetrumError::ParseError(
+                                    ParseError::MissingTempoSpecifier,
+                                ));
+                            }
+                        }
+                    } else {
+                        let duration = curr.as_duration_ms(&tempo);
+                        match duration {
+                            Ok(d) => bar.durations.push(Duration {
+                                ms: d,
+                                strong: bar.durations.is_empty(),
+                            }),
+                            Err(e) => {
+                                return Err(MetrumError::ConversionError(e));
                             }
                         }
                     }
@@ -84,12 +102,15 @@ impl Score {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::scanner::scan;
+    use crate::{error, scanner::scan};
     #[test]
     fn missing_tempo() {
         let toks = scan("q =".to_string()).unwrap();
         let score = Score::new(toks);
-        assert_eq!(score.unwrap_err(), ParseError::MissingTempoSpecifier);
+        assert_eq!(
+            score.unwrap_err(),
+            error::MetrumError::ParseError(ParseError::MissingTempoSpecifier)
+        );
     }
 
     #[test]
@@ -100,5 +121,48 @@ mod tests {
             let score = Score::new(toks);
             assert!(score.is_ok());
         }
+    }
+
+    #[test]
+    fn single_bar() {
+        let toks = scan("| q q q q |".to_string()).unwrap();
+        let score = Score::new(toks);
+        assert!(score.is_ok());
+        assert_eq!(score.as_ref().unwrap().bars.len(), 1);
+        assert_eq!(
+            score
+                .as_ref()
+                .unwrap()
+                .bars
+                .first()
+                .unwrap()
+                .durations
+                .len(),
+            4
+        );
+        assert!(
+            score
+                .as_ref()
+                .unwrap()
+                .bars
+                .first()
+                .unwrap()
+                .durations
+                .first()
+                .unwrap()
+                .strong
+        );
+        assert!(
+            !score
+                .as_ref()
+                .unwrap()
+                .bars
+                .first()
+                .unwrap()
+                .durations
+                .get(1)
+                .unwrap()
+                .strong
+        )
     }
 }
