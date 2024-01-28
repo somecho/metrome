@@ -38,7 +38,7 @@ pub fn scan(score: String) -> Result<Vec<Token>, MetrumError> {
                     return Err(MetrumError::TokenError(TokenError::MissingRepetition('x')));
                 }
                 let parsed = num.parse::<u16>().unwrap();
-                if parsed == 1 {
+                if parsed <= 1 {
                     return Err(MetrumError::TokenError(TokenError::NotEnoughRepeats));
                 }
                 tokens.push(Token::NoteRepeat(parsed));
@@ -52,7 +52,7 @@ pub fn scan(score: String) -> Result<Vec<Token>, MetrumError> {
                     return Err(MetrumError::TokenError(TokenError::MissingRepetition('%')));
                 }
                 let parsed = num.parse::<u16>().unwrap();
-                if parsed == 1 {
+                if parsed <= 1 {
                     return Err(MetrumError::TokenError(TokenError::NotEnoughRepeats));
                 }
                 tokens.push(Token::BarRepeat(parsed));
@@ -173,7 +173,7 @@ mod tests {
     #[test]
     fn invalid_scores() {
         let data = vec![
-            "i", "ul", "/", "/8", "1/2/4", "1/ 2", "1 /2", "x 1", "% 1", "|q|%1", "qx1",
+            "i", "ul", "/", "/8", "1/2/4", "1/ 2", "1 /2", "x 1", "% 1", "|q|%1", "qx1", "qx0",
         ];
         for s in data.iter() {
             let output = scan(s.to_string());

@@ -108,7 +108,14 @@ impl Score {
                         }
                     }
                 }
-                Token::NoteRepeat(_) => todo!(),
+                Token::NoteRepeat(n) => {
+                    if bar.durations.len() == 0 {
+                        return Err(MetrumError::ParseError(ParseError::NothingToRepeat));
+                    }
+                    for _ in 0..(n - 1) {
+                        bar.durations.push(bar.durations.last().unwrap().clone());
+                    }
+                }
                 Token::BarRepeat(n) => {
                     let prev = history.get(history.len() - 2);
                     match prev {
@@ -187,6 +194,20 @@ mod tests {
             let toks = scan(d.to_string()).unwrap();
             let score = Score::new(toks).unwrap();
             assert_eq!(score.bars.len(), *num_bars);
+        }
+    }
+
+    #[test]
+    fn note_repeats() {
+        let data = vec![
+            ("| qx4 |", 4),
+            ("| qx4 hx2 |", 6),
+            ("| qx100 |", 100),
+        ];
+        for (d, num_notes) in data.iter() {
+            let toks = scan(d.to_string()).unwrap();
+            let score = Score::new(toks).unwrap();
+            assert_eq!(score.bars[0].durations.len(), *num_notes);
         }
     }
 
