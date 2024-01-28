@@ -55,6 +55,12 @@ impl Score {
                     }
                 }
                 Token::Ratio(top, bottom) => {
+                    let mut num_dots = 0;
+                    while tokens.peek().is_some() && **tokens.peek().unwrap() == Token::Dot {
+                        num_dots += 1;
+                        tokens.next();
+                    }
+
                     if tokens.peek().is_some() && **tokens.peek().unwrap() == Token::Equal {
                         tokens.next();
                         let number = tokens.next();
@@ -76,7 +82,7 @@ impl Score {
                             }
                         }
                     } else {
-                        let duration = curr.as_duration_ms(&tempo);
+                        let duration = curr.as_duration_ms(&tempo, num_dots);
                         match duration {
                             Ok(d) => bar.durations.push(Duration {
                                 ms: d,
@@ -116,7 +122,7 @@ mod tests {
 
     #[test]
     fn setting_tempo() {
-        let data = vec!["q = 140", "1/3=120"];
+        let data = vec!["q = 140", "1/3=120", "q. = 80"];
         for d in data.iter() {
             let toks = scan(d.to_string()).unwrap();
             let score = Score::new(toks);
