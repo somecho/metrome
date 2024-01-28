@@ -35,6 +35,9 @@ impl Bar {
 }
 
 #[derive(Debug)]
+/// A score contains a vector of bars, which in turn contains a vector of durations. A score
+/// represents rhythm as a collection of durations, which will later be used to write the click
+/// track.
 pub struct Score {
     pub bars: Vec<Bar>,
 }
@@ -142,6 +145,20 @@ impl Score {
         }
 
         Ok(Score { bars })
+    }
+}
+
+impl std::fmt::Display for Score {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut out = String::new();
+        for bar in self.bars.iter() {
+            out += "| ";
+            for dur in bar.durations.iter() {
+                out += format!(" {} ", dur.ms).as_str();
+            }
+        }
+        out += " |";
+        write!(f, "{}", out)
     }
 }
 
