@@ -199,11 +199,7 @@ mod tests {
 
     #[test]
     fn note_repeats() {
-        let data = vec![
-            ("| qx4 |", 4),
-            ("| qx4 hx2 |", 6),
-            ("| qx100 |", 100),
-        ];
+        let data = vec![("| qx4 |", 4), ("| qx4 hx2 |", 6), ("| qx100 |", 100)];
         for (d, num_notes) in data.iter() {
             let toks = scan(d.to_string()).unwrap();
             let score = Score::new(toks).unwrap();
@@ -252,5 +248,15 @@ mod tests {
                 .unwrap()
                 .strong
         )
+    }
+
+    extern crate test_generator;
+    use test_generator::test_resources;
+
+    #[test_resources("examples/valid/*")]
+    fn valid_scores(path: &str) {
+        let input = std::fs::read_to_string(path).unwrap();
+        let output = Score::new(scan(input).unwrap());
+        assert!(output.is_ok(), "{}", output.unwrap_err());
     }
 }
