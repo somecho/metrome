@@ -60,7 +60,6 @@ impl Score {
                         num_dots += 1;
                         tokens.next();
                     }
-
                     if tokens.peek().is_some() && **tokens.peek().unwrap() == Token::Equal {
                         tokens.next();
                         let number = tokens.next();
@@ -97,8 +96,8 @@ impl Score {
                 Token::NoteRepeat(_) => todo!(),
                 Token::BarRepeat(_) => todo!(),
                 Token::Number(_) => return Err(MetrumError::ParseError(ParseError::Number)),
-                Token::Equal => todo!(),
-                Token::Dot => todo!(),
+                Token::Equal => return Err(MetrumError::ParseError(ParseError::Equal)),
+                Token::Dot => return Err(MetrumError::ParseError(ParseError::Dot)),
             }
         }
 

@@ -8,6 +8,10 @@ pub enum ParseError {
     MissingTempoSpecifier,
     /// Occurs when a number is used outside of the context of ratios or tempo specifications
     Number,
+    /// Occurs when a dot is found outside of the context of extending ratio duration
+    Dot,
+    /// Occurs when an equal character is found outside the context of tempo specification
+    Equal,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -48,6 +52,15 @@ impl fmt::Display for MetrumError {
                 }
                 ParseError::Number => {
                     write!(f, "A number can only be used in the context of ratios or tempo specifications")
+                }
+                ParseError::Dot => {
+                    write!(f, "A dot can only be used after a ratio or duration")
+                }
+                ParseError::Equal => {
+                    write!(
+                        f,
+                        "An equal character can only be used when specifying a tempo"
+                    )
                 }
             },
             MetrumError::ConversionError(e) => match e {
