@@ -6,6 +6,8 @@ pub enum ParseError {
     /// Occurs when specifying a tempo without the numbers per minute.
     /// For example: `q =`
     MissingTempoSpecifier,
+    /// Occurs when a number is used outside of the context of ratios or tempo specifications
+    Number,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -43,6 +45,9 @@ impl fmt::Display for MetrumError {
             MetrumError::ParseError(e) => match e {
                 ParseError::MissingTempoSpecifier => {
                     write!(f, "A number must come after '=' when specifying tempo")
+                }
+                ParseError::Number => {
+                    write!(f, "A number can only be used in the context of ratios or tempo specifications")
                 }
             },
             MetrumError::ConversionError(e) => match e {

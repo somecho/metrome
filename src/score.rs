@@ -24,6 +24,7 @@ pub struct Duration {
 pub struct Bar {
     pub durations: Vec<Duration>,
 }
+
 impl Bar {
     pub fn new() -> Self {
         Bar {
@@ -89,7 +90,7 @@ impl Score {
                 }
                 Token::NoteRepeat(_) => todo!(),
                 Token::BarRepeat(_) => todo!(),
-                Token::Number(_) => todo!(),
+                Token::Number(_) => return Err(MetrumError::ParseError(ParseError::Number)),
                 Token::Equal => todo!(),
                 Token::Dot => todo!(),
             }
