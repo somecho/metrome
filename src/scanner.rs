@@ -1,3 +1,5 @@
+use crate::error::{MetrumError, TokenError};
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Token {
     Barline,
@@ -9,13 +11,7 @@ pub enum Token {
     Dot,
 }
 
-const NUMBERS: &str = "0123456789";
-
-fn is_number(c: char) -> bool {
-    NUMBERS.contains(c)
-}
-
-pub fn scan(score: String) -> Result<Vec<Token>, String> {
+pub fn scan(score: String) -> Result<Vec<Token>, MetrumError> {
     let mut score = score.chars().peekable();
     let mut tokens: Vec<Token> = Vec::new();
 
@@ -35,53 +31,56 @@ pub fn scan(score: String) -> Result<Vec<Token>, String> {
             't' => tokens.push(Token::Ratio(1, 32)),
             'x' => {
                 let mut num = String::new();
-                while score.peek().is_some() && is_number(*score.peek().unwrap()) {
+                while score.peek().is_some() && score.peek().unwrap().is_ascii_digit() {
                     num.push(score.next().unwrap());
                 }
                 if num.is_empty() {
-                    return Err(format!(
-                        "The number of repetitions must be specified directly after x"
-                    ));
+                    return Err(MetrumError::TokenError(TokenError::MissingRepetition('x')));
                 }
                 tokens.push(Token::NoteRepeat(num.parse::<u16>().unwrap()));
             }
             '%' => {
                 let mut num = String::new();
-                while score.peek().is_some() && is_number(*score.peek().unwrap()) {
+                while score.peek().is_some() && score.peek().unwrap().is_ascii_digit() {
                     num.push(score.next().unwrap());
                 }
                 if num.is_empty() {
-                    return Err(format!(
-                        "The number of repetitions must be specified directly after x"
-                    ));
+                    return Err(MetrumError::TokenError(TokenError::MissingRepetition('%')));
                 }
                 tokens.push(Token::BarRepeat(num.parse::<u16>().unwrap()));
             }
+            '/' => return Err(MetrumError::TokenError(TokenError::LeadingSlash)),
             _ => {
-                if is_number(curr) {
+                if curr.is_ascii_digit() {
                     let mut num = String::from(curr);
-                    while score.peek().is_some() && is_number(*score.peek().unwrap()) {
+                    while score.peek().is_some() && score.peek().unwrap().is_ascii_digit() {
                         num.push(score.next().unwrap());
                     }
+                    let parsed_num = num.parse::<u16>().unwrap();
+                    if parsed_num == 0 {
+                        return Err(MetrumError::TokenError(TokenError::Zero));
+                    }
+
                     if score.peek().is_some() && *score.peek().unwrap() == '/' {
                         score.next();
-                        if score.peek().is_some() && is_number(*score.peek().unwrap()) {
+                        if score.peek().is_some() && score.peek().unwrap().is_ascii_digit() {
                             let mut bottom = String::new();
-                            while score.peek().is_some() && is_number(*score.peek().unwrap()) {
+                            while score.peek().is_some() && score.peek().unwrap().is_ascii_digit() {
                                 bottom.push(score.next().unwrap());
                             }
-                            tokens.push(Token::Ratio(
-                                num.parse::<u16>().unwrap(),
-                                bottom.parse::<u16>().unwrap(),
-                            ));
+                            let parsed_bottom = bottom.parse::<u16>().unwrap();
+                            if parsed_bottom == 0 {
+                                return Err(MetrumError::TokenError(TokenError::Zero));
+                            }
+                            tokens.push(Token::Ratio(parsed_num, parsed_bottom));
                         } else {
-                            return Err(format!("A number must come directly after a /"));
+                            return Err(MetrumError::TokenError(TokenError::IncompleteRatio));
                         }
                     } else {
-                        tokens.push(Token::Number(num.parse::<u16>().unwrap()));
+                        tokens.push(Token::Number(parsed_num));
                     }
                 } else {
-                    return Err(format!("Invalid character: {curr}"));
+                    return Err(MetrumError::TokenError(TokenError::InvalidCharacter(curr)));
                 }
             }
         }
@@ -170,20 +169,6 @@ mod tests {
             let output = scan(s.to_string());
             assert!(output.is_err());
         }
-    }
-
-    #[test]
-    fn is_number() {
-        assert!(super::is_number('0'));
-        assert!(super::is_number('1'));
-        assert!(super::is_number('2'));
-        assert!(super::is_number('3'));
-        assert!(super::is_number('4'));
-        assert!(super::is_number('5'));
-        assert!(super::is_number('6'));
-        assert!(super::is_number('7'));
-        assert!(super::is_number('8'));
-        assert!(super::is_number('9'));
     }
 
     extern crate test_generator;
