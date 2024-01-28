@@ -21,7 +21,7 @@ pub struct Duration {
     strong: bool,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Bar {
     pub durations: Vec<Duration>,
 }
@@ -45,8 +45,10 @@ impl Score {
         let mut bars: Vec<Bar> = Vec::new();
         let mut bar = Bar::new();
         let mut tempo = Tempo::new((1, 4), 120);
+        let mut history: Vec<Token> = Vec::new();
         while tokens.peek().is_some() {
             let curr = tokens.next().unwrap();
+            history.push(*curr);
             match curr {
                 Token::Barline => {
                     if !bar.durations.is_empty() {
@@ -107,7 +109,25 @@ impl Score {
                     }
                 }
                 Token::NoteRepeat(_) => todo!(),
-                Token::BarRepeat(_) => todo!(),
+                Token::BarRepeat(n) => {
+                    let prev = history.get(history.len() - 2);
+                    match prev {
+                        Some(tok) => match tok {
+                            Token::Barline => {
+                                if bars.len() == 0 {
+                                    return Err(MetrumError::ParseError(
+                                        ParseError::NothingToRepeat,
+                                    ));
+                                }
+                                for _ in 0..(n - 1) {
+                                    bars.push(bars.last().unwrap().clone())
+                                }
+                            }
+                            _ => return Err(MetrumError::ParseError(ParseError::BarRepeat)),
+                        },
+                        None => return Err(MetrumError::ParseError(ParseError::NothingToRepeat)),
+                    }
+                }
                 Token::Number(_) => return Err(MetrumError::ParseError(ParseError::Number)),
                 Token::Equal => return Err(MetrumError::ParseError(ParseError::Equal)),
                 Token::Dot => return Err(MetrumError::ParseError(ParseError::Dot)),
@@ -157,6 +177,16 @@ mod tests {
             let toks = scan(d.to_string()).unwrap();
             let score = Score::new(toks);
             assert!(score.is_ok());
+        }
+    }
+
+    #[test]
+    fn bar_repeats() {
+        let data = vec![("| q |%2", 2)];
+        for (d, num_bars) in data.iter() {
+            let toks = scan(d.to_string()).unwrap();
+            let score = Score::new(toks).unwrap();
+            assert_eq!(score.bars.len(), *num_bars);
         }
     }
 

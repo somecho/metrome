@@ -37,7 +37,11 @@ pub fn scan(score: String) -> Result<Vec<Token>, MetrumError> {
                 if num.is_empty() {
                     return Err(MetrumError::TokenError(TokenError::MissingRepetition('x')));
                 }
-                tokens.push(Token::NoteRepeat(num.parse::<u16>().unwrap()));
+                let parsed = num.parse::<u16>().unwrap();
+                if parsed == 1 {
+                    return Err(MetrumError::TokenError(TokenError::NotEnoughRepeats));
+                }
+                tokens.push(Token::NoteRepeat(parsed));
             }
             '%' => {
                 let mut num = String::new();
@@ -47,7 +51,11 @@ pub fn scan(score: String) -> Result<Vec<Token>, MetrumError> {
                 if num.is_empty() {
                     return Err(MetrumError::TokenError(TokenError::MissingRepetition('%')));
                 }
-                tokens.push(Token::BarRepeat(num.parse::<u16>().unwrap()));
+                let parsed = num.parse::<u16>().unwrap();
+                if parsed == 1 {
+                    return Err(MetrumError::TokenError(TokenError::NotEnoughRepeats));
+                }
+                tokens.push(Token::BarRepeat(parsed));
             }
             '/' => return Err(MetrumError::TokenError(TokenError::LeadingSlash)),
             _ => {
@@ -164,7 +172,9 @@ mod tests {
 
     #[test]
     fn invalid_scores() {
-        let data = vec!["i", "ul", "/", "/8", "1/2/4", "1/ 2", "1 /2", "x 1", "% 1"];
+        let data = vec![
+            "i", "ul", "/", "/8", "1/2/4", "1/ 2", "1 /2", "x 1", "% 1", "|q|%1", "qx1",
+        ];
         for s in data.iter() {
             let output = scan(s.to_string());
             assert!(output.is_err());

@@ -12,6 +12,10 @@ pub enum ParseError {
     Dot,
     /// Occurs when an equal character is found outside the context of tempo specification
     Equal,
+    /// Occurs when a repeat is specified but there is nothing to repeat
+    NothingToRepeat,
+    /// Occurs when a bar repeat occurs anywhere else but after a barline
+    BarRepeat,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -20,7 +24,7 @@ pub enum ConversionError {
     /// Occurs when trying to convert a token to a duration that isn't a ratio
     NonRatioToDuration,
     /// Occurs when using a non ratio in a conversion that requires one
-    NonRatio
+    NonRatio,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -37,6 +41,8 @@ pub enum TokenError {
     IncompleteRatio,
     /// Occurs when a '/' is found before a number is found
     LeadingSlash,
+    /// Occurs when the number of repeats is less than 2 (i.e. 1)
+    NotEnoughRepeats,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -64,6 +70,12 @@ impl fmt::Display for MetrumError {
                         "An equal character can only be used when specifying a tempo"
                     )
                 }
+                ParseError::NothingToRepeat => {
+                    write!(f, "There is nothing to repeat!")
+                }
+                ParseError::BarRepeat => {
+                    write!(f, "A bar repeat must come directly after a barline")
+                }
             },
             MetrumError::ConversionError(e) => match e {
                 ConversionError::NonRatioToDuration => {
@@ -71,7 +83,7 @@ impl fmt::Display for MetrumError {
                 }
                 ConversionError::NonRatio => {
                     write!(f, "Cannot use a non ratio in this conversion")
-                },
+                }
             },
             MetrumError::TokenError(e) => match e {
                 TokenError::Zero => {
@@ -91,6 +103,9 @@ impl fmt::Display for MetrumError {
                         f,
                         "A '/' cannot come on its own without a number preceding it"
                     )
+                }
+                TokenError::NotEnoughRepeats => {
+                    write!(f, "The number of repeats must be greater than 1")
                 }
             },
         }
