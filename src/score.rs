@@ -3,6 +3,7 @@ use crate::{
     scanner::Token,
 };
 
+#[derive(Debug, PartialEq)]
 pub struct Tempo {
     pub beat: (u16, u16),
     pub num_beats: u16,
@@ -44,7 +45,6 @@ impl Score {
         let mut bars: Vec<Bar> = Vec::new();
         let mut bar = Bar::new();
         let mut tempo = Tempo::new((1, 4), 120);
-
         while tokens.peek().is_some() {
             let curr = tokens.next().unwrap();
             match curr {
@@ -68,6 +68,7 @@ impl Score {
                                 Token::Number(n) => {
                                     tempo = Tempo::new((*top, *bottom), *n);
                                 }
+                                Token::Ratio(top2, bottom2) => {}
                                 _ => {
                                     return Err(MetrumError::ParseError(
                                         ParseError::MissingTempoSpecifier,
@@ -120,8 +121,19 @@ mod tests {
     }
 
     #[test]
+    fn tempo_changes() {
+        let data = vec![("| q h=120 q|", 250.0), ("|q q=q. q.|", 500.0)];
+        for (s, duration) in data.iter() {
+            let toks = scan(s.to_string()).unwrap();
+            let score = Score::new(toks).unwrap();
+            let note = &score.bars[0].durations[1];
+            assert_eq!(note.ms, *duration);
+        }
+    }
+
+    #[test]
     fn setting_tempo() {
-        let data = vec!["q = 140", "1/3=120", "q. = 80"];
+        let data = vec!["q = 140", "1/3=120", "q. = 80", "1/5.=200"];
         for d in data.iter() {
             let toks = scan(d.to_string()).unwrap();
             let score = Score::new(toks);

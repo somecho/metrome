@@ -19,6 +19,8 @@ pub enum ParseError {
 pub enum ConversionError {
     /// Occurs when trying to convert a token to a duration that isn't a ratio
     NonRatioToDuration,
+    /// Occurs when using a non ratio in a conversion that requires one
+    NonRatio
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -67,6 +69,9 @@ impl fmt::Display for MetrumError {
                 ConversionError::NonRatioToDuration => {
                     write!(f, "Cannot convert a non ratio to a duration")
                 }
+                ConversionError::NonRatio => {
+                    write!(f, "Cannot use a non ratio in this conversion")
+                },
             },
             MetrumError::TokenError(e) => match e {
                 TokenError::Zero => {

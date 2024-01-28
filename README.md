@@ -47,3 +47,8 @@ You can change the tempo any where in the score. For example: `| q q
 q=180 q q |`. Here, the first two quarter notes have `q=120` as the tempo and
 the last two quarter notes have tempo `q=180` as the tempo. Note that there are
 only 4 quarter notes in this example
+
+#### Relative tempo 
+A new tempo can also be set like this `q = q.`, where the right side is as long
+as the left side. In ths previous example, it means that dotted quarters are
+now as long as quarters from before the tempo change.
