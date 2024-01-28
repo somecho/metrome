@@ -16,6 +16,8 @@ pub enum ParseError {
     NothingToRepeat,
     /// Occurs when a bar repeat occurs anywhere else but after a barline
     BarRepeat,
+    /// Occurs when the last bar has no closing barline
+    UnterminatedBar,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -75,6 +77,9 @@ impl fmt::Display for MetrumError {
                 }
                 ParseError::BarRepeat => {
                     write!(f, "A bar repeat must come directly after a barline")
+                }
+                ParseError::UnterminatedBar => {
+                    write!(f, "A score must end with a barline")
                 }
             },
             MetrumError::ConversionError(e) => match e {

@@ -144,6 +144,10 @@ impl Score {
             }
         }
 
+        if !bar.durations.is_empty() {
+            return Err(MetrumError::ParseError(ParseError::UnterminatedBar));
+        }
+
         Ok(Score { bars })
     }
 }
