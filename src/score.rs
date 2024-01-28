@@ -68,7 +68,19 @@ impl Score {
                                 Token::Number(n) => {
                                     tempo = Tempo::new((*top, *bottom), *n);
                                 }
-                                Token::Ratio(top2, bottom2) => {}
+                                Token::Ratio(top2, bottom2) => {
+                                    let mut dots = 0;
+                                    while tokens.peek().is_some()
+                                        && **tokens.peek().unwrap() == Token::Dot
+                                    {
+                                        dots += 1;
+                                        tokens.next();
+                                    }
+                                    tempo = tempo.relative_to(
+                                        &Token::Ratio(*top, *bottom).apply_dots(num_dots)?,
+                                        &Token::Ratio(*top2, *bottom2).apply_dots(dots)?,
+                                    )?;
+                                }
                                 _ => {
                                     return Err(MetrumError::ParseError(
                                         ParseError::MissingTempoSpecifier,
@@ -122,7 +134,14 @@ mod tests {
 
     #[test]
     fn tempo_changes() {
-        let data = vec![("| q h=120 q|", 250.0), ("|q q=q. q.|", 500.0)];
+        let data = vec![
+            ("| q q=h q|", 250.0),
+            ("|q q=q. q.|", 500.0),
+            ("|q q=1/4. q.|", 500.0),
+            ("|q 1/4=1/4. q.|", 500.0),
+            ("|h 2/4=2/4. h.|", 1000.0),
+            ("|q q.=q q|", 750.0),
+        ];
         for (s, duration) in data.iter() {
             let toks = scan(s.to_string()).unwrap();
             let score = Score::new(toks).unwrap();

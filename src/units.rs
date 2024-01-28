@@ -49,6 +49,28 @@ impl Token {
             _ => Err(ConversionError::NonRatioToDuration),
         }
     }
+
+    pub fn apply_dots(&self, num_dots: u16) -> Result<Token, MetrumError> {
+        match self {
+            Token::Ratio(top, bottom) => {
+                let mut top = *top;
+                let mut new_top = top;
+                let mut bottom = *bottom;
+                let mut divisor = 2;
+                for _ in 0..num_dots {
+                    if top % divisor != 0 {
+                        new_top *= 2;
+                        top *= 2;
+                        bottom *= 2;
+                    }
+                    new_top += top / divisor;
+                    divisor *= 2;
+                }
+                Ok(Token::Ratio(new_top, bottom))
+            }
+            _ => Err(MetrumError::ConversionError(ConversionError::NonRatio)),
+        }
+    }
 }
 
 #[cfg(test)]
@@ -108,6 +130,18 @@ mod tests {
             ];
             for (tempo, ratio, num_dots, duration) in data.iter() {
                 assert_eq!(ratio.as_duration_ms(tempo, *num_dots).unwrap(), *duration);
+            }
+        }
+
+        #[test]
+        fn dot_application() {
+            let data = vec![
+                (Token::Ratio(1, 4), 1, Token::Ratio(3, 8)),
+                (Token::Ratio(1, 4), 2, Token::Ratio(7, 16)),
+                (Token::Ratio(3, 8), 1, Token::Ratio(9, 16)),
+            ];
+            for (ratio1, num_dots, ratio2) in data.iter() {
+                assert_eq!(ratio1.apply_dots(*num_dots).unwrap(), *ratio2);
             }
         }
     }
