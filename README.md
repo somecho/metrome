@@ -1,54 +1,152 @@
 # Metrum
 
-## Syntax
+Metrum is a click track generator. It uses simple text-based rhythm notation to
+generate any kind of rhythmic click track. Metrum currently can be used as a
+CLI or as a Rust crate. A web interface is in the plans!
 
-### Durations
-Durations can be specified with letters or ratios
+### Why would you use Metrum when you can use a metronome? 
 
-Letters
-Using w, h, q, e, s, t for whole, half, quarter, eighth, sixteenth and thirtysecond respectively.
+Your rhythmic needs may differ. For most musicians, a simple device that beats
+constant pulses may be enough. For a small portion of musicians, a
+[polyrhythmic metronome](https://github.com/somecho/polymetro) may serve their
+niche rhythmic needs. However, if you find yourself facing pieces with constant
+tempo, meter and pulse changes, you might want to have dedicated click track
+for practicing the piece. Heck, even pieces with the occasional odd time
+signature will mess up practicing with a normal metronome.
 
-Ratios
-Using any combination of integers e.g. 1/4, 3/4, 5/7, 12/3
+## Usage
+### CLI 
+**System requirements**: you will need Rust to run the Metrum CLI. Follow [this
+page](https://www.rust-lang.org/tools/install) to install Rust.
 
-Additionally, durations can be dotted by specifying the number of dots after
-e.g. w. is a dotted whole note
-1/4. is a dotted quarter note
+#### Quickstart
+For a quick start, you can clone this repo and render the examples. These
+instructions work for Mac and Linux users. If you know Powershell, feel free to
+contribute a matching script!
 
-### Specifying Tempo
-A tempo can be specified by defining what a duration is equal to. For example
-`q = 140` means 140 quarter notes in a minute. `3/4 = 60` means 60 dotted half
-notes in a minute. If no tempo is specified in the beginning, a default of
-`q=120` is used.
+```
+git clone https://github.com/somecho/metrum
+cd metrum
+./render_examples.sh
+```
 
-### Writing rhythms
-Rhythms are contained in bars. When writing Rhythms, it is not necessary to
-specify the time signature. Each bar must start and end with the pipe character
-`|`, which denotes the barline, and contains any amount of durations. For
-example, a bar with four quarter notes looks like this `| q q q q |`. The first
-beat of every bar will be given a strong click.
+After running this, the root of the metrum directory should now contain many
+WAV files which you can run directly in the command line with cvlc if you have
+VLC player installed. Otherwise, just play the WAV files in your player of
+choice.
 
-Units (durations and barlines) must be separated by space or new lines.
+#### Providing your own score
+The Metrum score is just a textfile with no extensions. To provide your own
+score to Metrum, simple use the `-p` flag like such: `metrum -p my_score` or
+`cargo run -- -p my_score` in the metrum project directory. For more
+information on how to write a rhythm score, read the following section.
 
-### Short hands
-Repetitive sequences can be shortened with a couple of short hand notations. 
+## The Metrum Score
 
-#### Repeating notes
-To repeat a note, simply write `x2` (times 2) directly behind it. For example
-`qx2` would mean 2 quarter notes. You can repeat a note any number of times.
+The score metrum uses to create click track is just a simple text file. Here's
+a short example of what it looks like.
 
-#### Repeating bars
-To repeat a bar, write `%2` in behind the closing barline of the bar that is to
-be repeated. For example, `| w 1/6. |%2` means to repeat the whole note and the
-dotted triplet quarter note twice.
 
-### Changing tempo
-You can change the tempo any where in the score. For example: `| q q
-q=180 q q |`. Here, the first two quarter notes have `q=120` as the tempo and
-the last two quarter notes have tempo `q=180` as the tempo. Note that there are
-only 4 quarter notes in this example
+**Example:**
 
-#### Relative tempo 
-A new tempo can also be set like this `q = q.`, where the right side is as long
-as the left side. In ths previous example, it means that dotted quarters are
-now as long as quarters from before the tempo change.
+```
+| q. e q. e    | e e e e h 
+| q. e q. e    | e e e e h 
+| q q. e e e   | e e q. e e e
+| e e q. e e e | e e q. e e e | 
+```
+
+### Bars
+
+As you can see, it follows traditional notation in that notes are grouped in
+bars (as denoted by the barlines `|` ). However, unlike traditional notation,
+you do not need to provide a time signature. Bars serve the purpose of
+differentiating strong and weak beats, with the first beat of every bar strong
+and the rest weak.
+
+```
+| q  q  q |
+  ^  ^  ^
+  |  |  |
+  |  |  Weak
+  |  Weak
+  Strong
+```
+
+> ⚠ every score **must** begin and end with a barline!
+
+> Tip: you can organize your score however you like. Line breaks do not make a
+> difference.
+
+### Notes, Durations and Ratios
+
+Notes can be represented using these letters:
+- `w` - whole note
+- `h` - half note
+- `q` - quarter note
+- `e` - eighth note
+- `s` - sixteenth note
+- `t` - thirtysecond note
+
+Alternatively, you can also write notes using ratios:
+
+```
+these two bars are the same: | 1/4 1/4 1/4 1/4 | q q q q |
+ratios are great for triples: | 1/6 1/6 1/6 1/6 1/6 1/6 | 
+```
+
+You can use any combination of this. For example, `| q 1/6 1/6 1/6 h |` is a
+valid bar.
+
+### Dotted Notes
+
+Any note, duration or ratio can be extended using dots `.`, just like in
+traditional notation. For example, `q.` is as long as `3/8` and `q..` is as
+long as `7/16`.
+
+### Tempo
+Tempo can be specified like this `q = 140` (read: 140 quarter notes per
+minute). The grammar for this is `<note> = <number>`, where `<note>` is either
+a duration represented as a letter or a ratio.
+
+The tempo can be specified anywhere within a score:
+```
+At the beginning like a normal score
+q = 140
+| q q q q |
+
+After a bar 
+| q q q q | h = 90 h h |
+
+In the middle of a bar like a psycho
+| q q q=150 1/6 1/6 1/6 |
+```
+
+> Note: When no tempo is specified, the Metrum defaults to `q = 120` or 120
+> quarter notes per minute. Pretty sane if you ask me.
+
+### Relative Tempo Changes
+In many music, tempo changes can be done relatively. For example, ♩=♩. ,
+meaning dotted quarter notes are now as long as quarter notes. You will
+commonly find this in music that switched from 4/4 (simple time) to 6/8
+(compound time), where the pulse division turns from two to three stays the
+same length.
+
+In Metrum, the equivalent is `q=q.`. Simple, clean. You can do all sorts of
+wild things. You can also do this `1/6=q`, where the quarter notes are now as
+fast as the triplet quarter notes (essentially the same thing, but semantically
+and musically different.
+
+## Examples
+
+Check out the [examples](./examples/valid) for reference.
+
+## Roadmap 
+- [ ] take `stdin` input
+- [ ] floating point tempo 
+- [ ] web interface
+- [ ] `-o` flag for specifying custom output path
+
+---
+
+© 2024 Somē Cho
