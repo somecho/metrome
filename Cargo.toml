@@ -2,8 +2,18 @@
 name = "metrum"
 version = "0.1.0"
 edition = "2021"
+authors = ["Somē Cho <itssomicho@gmail.com>"]
+keywords = ["wav","audio","music","rhythm","clicktrack"]
+repository="https://github.com/somecho/metrum"
+description="Create click tracks from any rhythm"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "metrum"
+path ="src/lib.rs"
+
+[[bin]]
+name = "metrum"
+path = "src/main.rs"
 
 [dependencies]
 hound = "3.5.1"
