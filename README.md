@@ -24,7 +24,7 @@ For a quick start, you can clone this repo and render the examples. These
 instructions work for Mac and Linux users. If you know Powershell, feel free to
 contribute a matching script!
 
-```
+```bash
 git clone https://github.com/somecho/metrome
 cd metrome
 ./render_examples.sh
@@ -40,6 +40,18 @@ The Metrome score is just a textfile with no extensions. To provide your own
 score to Metrome, simple use the `-p` flag like such: `metrome -p my_score` or
 `cargo run -- -p my_score` in the metrome project directory. For more
 information on how to write a rhythm score, read the following section.
+
+#### Programmatic Usage Example
+```rust
+use metrome::{scanner, score::Score};
+
+fn main() {
+    let file = std::fs::read_to_string("myscore").unwrap();
+    let tokens = scanner::scan(file).unwrap();
+    let score = Score::new(tokens).unwrap();
+    score.write_click_track("myscore.wav");
+}
+```
 
 ## The Metrome Score
 

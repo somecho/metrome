@@ -4,8 +4,13 @@ use crate::{
 };
 
 #[derive(Debug, PartialEq)]
+/// A tempo represents how fast music is going and is often represented in terms of *how many this
+/// kind of beats per minute*. For example 140 quarter notes per minute.
 pub struct Tempo {
+    /// A tuple representing the kind of beat as a ratio. For example, the tuple `(1,4)` would
+    /// represent a quarter (1/4) note.
     pub beat: (u16, u16),
+    /// The number of [Tempo::beat] per minute
     pub num_beats: u16,
 }
 
@@ -16,13 +21,15 @@ impl Tempo {
 }
 
 #[derive(Clone, Debug)]
+/// A [Duration] struct contains how long a note is in *milliseconds* and whether the beat is
+/// strong or weak.
 pub struct Duration {
     pub ms: f32,
     pub strong: bool,
 }
 
 impl Duration {
-    // creates a weak duration from any duration
+    /// creates a weak [Duration] from any duration
     pub fn to_weak(&self) -> Self {
         Duration {
             ms: self.ms,
@@ -32,6 +39,7 @@ impl Duration {
 }
 
 #[derive(Debug, Clone)]
+/// A struct containing a vector of durations
 pub struct Bar {
     pub durations: Vec<Duration>,
 }
@@ -53,6 +61,8 @@ pub struct Score {
 }
 
 impl Score {
+    /// Takes in a list of [tokens][crate::scanner::Token] that has been parsed by
+    /// the [scanner][crate::scanner] and returns a [Score] wrapped in a result.
     pub fn new(tokens: Vec<Token>) -> Result<Self, MetrumError> {
         let mut tokens = tokens.iter().peekable();
         let mut bars: Vec<Bar> = Vec::new();
@@ -161,6 +171,7 @@ impl Score {
         Ok(Score { bars })
     }
 
+    /// Calculates and returns the total duration of the score in *milliseconds*.
     pub fn total_duration(&self) -> f32 {
         self.bars.iter().fold(0.0, |acc, e| {
             acc + e.durations.iter().fold(0.0, |acc, e| acc + e.ms)

@@ -14,16 +14,19 @@ pub enum ParseError {
     Equal,
     /// Occurs when a repeat is specified but there is nothing to repeat
     NothingToRepeat,
-    /// Occurs when a bar repeat occurs anywhere else but after a barline
+    /// Occurs when a bar repeat occurs anywhere else but after a
+    /// [barline][crate::scanner::Token::Barline]
     BarRepeat,
-    /// Occurs when the last bar has no closing barline
+    /// Occurs when the last bar has no closing
+    /// [barline][crate::scanner::Token::Barline]
     UnterminatedBar,
 }
 
 #[derive(Debug, PartialEq, Clone)]
 /// Errors that occur when converting between units
 pub enum ConversionError {
-    /// Occurs when trying to convert a token to a duration that isn't a ratio
+    /// Occurs when trying to convert a token to a [Duration][crate::score::Duration] that isn't a
+    /// [Token::Ratio][crate::scanner::Token::Ratio]
     NonRatioToDuration,
     /// Occurs when using a non ratio in a conversion that requires one
     NonRatio,
@@ -48,9 +51,13 @@ pub enum TokenError {
 }
 
 #[derive(Debug, PartialEq, Clone)]
+/// The main error type that wraps [ParseError], [ConversionError] and [TokenError]
 pub enum MetrumError {
+    /// see [ParseError]
     ParseError(ParseError),
+    /// see [ConversionError]
     ConversionError(ConversionError),
+    /// see [TokenError]
     TokenError(TokenError),
 }
 impl fmt::Display for MetrumError {

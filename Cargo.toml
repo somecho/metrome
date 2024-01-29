@@ -1,6 +1,6 @@
 [package]
 name = "metrome"
-version = "0.1.22"
+version = "0.1.24"
 edition = "2021"
 authors = ["Somē Cho <itssomicho@gmail.com>"]
 keywords = ["wav","audio","music","rhythm","clicktrack"]
@@ -12,6 +12,7 @@ readme = "README.md"
 [lib]
 name = "metrome"
 path ="src/lib.rs"
+doctest = false
 
 [[bin]]
 name = "metrome"
