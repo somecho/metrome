@@ -6,6 +6,7 @@ authors = ["Somē Cho <itssomicho@gmail.com>"]
 keywords = ["wav","audio","music","rhythm","clicktrack"]
 repository="https://github.com/somecho/metrum"
 description="Create click tracks from any rhythm"
+license="GPL-3.0"
 
 [lib]
 name = "metrum"
