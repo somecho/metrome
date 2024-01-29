@@ -1,12 +1,13 @@
 [package]
 name = "metrome"
-version = "0.1.18"
+version = "0.1.22"
 edition = "2021"
 authors = ["Somē Cho <itssomicho@gmail.com>"]
 keywords = ["wav","audio","music","rhythm","clicktrack"]
 repository="https://github.com/somecho/metrum"
 description="Create click tracks from any rhythm"
 license="GPL-3.0"
+readme = "README.md"
 
 [lib]
 name = "metrome"
