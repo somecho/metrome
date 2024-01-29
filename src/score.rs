@@ -17,8 +17,18 @@ impl Tempo {
 
 #[derive(Clone, Debug)]
 pub struct Duration {
-    ms: f32,
-    strong: bool,
+    pub ms: f32,
+    pub strong: bool,
+}
+
+impl Duration {
+    // creates a weak duration from any duration
+    pub fn to_weak(&self) -> Self {
+        Duration {
+            ms: self.ms,
+            strong: false,
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -116,7 +126,7 @@ impl Score {
                         return Err(MetrumError::ParseError(ParseError::NothingToRepeat));
                     }
                     for _ in 0..(n - 1) {
-                        bar.durations.push(bar.durations.last().unwrap().clone());
+                        bar.durations.push(bar.durations.last().unwrap().to_weak());
                     }
                 }
                 Token::BarRepeat(n) => {
@@ -149,6 +159,12 @@ impl Score {
         }
 
         Ok(Score { bars })
+    }
+
+    pub fn total_duration(&self) -> f32 {
+        self.bars.iter().fold(0.0, |acc, e| {
+            acc + e.durations.iter().fold(0.0, |acc, e| acc + e.ms)
+        })
     }
 }
 
@@ -209,6 +225,21 @@ mod tests {
     }
 
     #[test]
+    fn total_durations() {
+        let data = vec![
+            ("| qx4 |", 2000.0),
+            ("q=60 | qx4 |", 4000.0),
+            ("q=240 | qx4 |", 1000.0),
+            ("| qx3 |", 1500.0),
+        ];
+        for (d, dur) in data.iter() {
+            let toks = scan(d.to_string()).unwrap();
+            let score = Score::new(toks).unwrap();
+            assert_eq!(score.total_duration(), *dur);
+        }
+    }
+
+    #[test]
     fn bar_repeats() {
         let data = vec![("| q |%2", 2)];
         for (d, num_bars) in data.iter() {
@@ -225,6 +256,13 @@ mod tests {
             let toks = scan(d.to_string()).unwrap();
             let score = Score::new(toks).unwrap();
             assert_eq!(score.bars[0].durations.len(), *num_notes);
+            assert!(score.bars[0].durations[0].strong);
+            for i in 1..score.bars[0].durations.len() {
+                assert!(
+                    !score.bars[0].durations[i].strong,
+                    "The rest of the beats in a bar must be weak"
+                );
+            }
         }
     }
 

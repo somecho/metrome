@@ -73,6 +73,11 @@ impl Token {
     }
 }
 
+/// returns the number of samples needed to cover the given duration in the given sample rate
+pub fn ms_to_samples(duration_ms: f32, sample_rate: u32) -> u32 {
+    (duration_ms / 1000.0 * sample_rate as f32) as u32
+}
+
 #[cfg(test)]
 mod tests {
     mod tempo {
@@ -143,6 +148,18 @@ mod tests {
             for (ratio1, num_dots, ratio2) in data.iter() {
                 assert_eq!(ratio1.apply_dots(*num_dots).unwrap(), *ratio2);
             }
+        }
+    }
+
+    #[test]
+    fn num_samples_from_duration() {
+        let data = vec![
+            (1000.0, 44100, 44100),
+            (500.0, 44100, 22050),
+            (2000.0, 44100, 88200),
+        ];
+        for (dur, sample_rate, num_samples) in data.iter() {
+            assert_eq!(super::ms_to_samples(*dur, *sample_rate), *num_samples)
         }
     }
 }
