@@ -1,5 +1,5 @@
 use clap::Parser;
-use metrum::{scanner, score::Score};
+use metrome::{scanner, score::Score};
 
 #[derive(Parser, Debug)]
 #[command(author,version,about,long_about=None)]

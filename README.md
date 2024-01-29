@@ -1,10 +1,10 @@
-# Metrum
+# Metrome
 
-Metrum is a click track generator. It uses simple text-based rhythm notation to
-generate any kind of rhythmic click track. Metrum currently can be used as a
+Metrome is a click track generator. It uses simple text-based rhythm notation to
+generate any kind of rhythmic click track. Metrome currently can be used as a
 CLI or as a Rust crate. A web interface is in the plans!
 
-### Why would you use Metrum when you can use a metronome? 
+### Why would you use Metrome when you can use a metronome? 
 
 Your rhythmic needs may differ. For most musicians, a simple device that beats
 constant pulses may be enough. For a small portion of musicians, a
@@ -16,7 +16,7 @@ signature will mess up practicing with a normal metronome.
 
 ## Usage
 ### CLI 
-**System requirements**: you will need Rust to run the Metrum CLI. Follow [this
+**System requirements**: you will need Rust to run the Metrome CLI. Follow [this
 page](https://www.rust-lang.org/tools/install) to install Rust.
 
 #### Quickstart
@@ -25,25 +25,25 @@ instructions work for Mac and Linux users. If you know Powershell, feel free to
 contribute a matching script!
 
 ```
-git clone https://github.com/somecho/metrum
-cd metrum
+git clone https://github.com/somecho/metrome
+cd metrome
 ./render_examples.sh
 ```
 
-After running this, the root of the metrum directory should now contain many
+After running this, the root of the metrome directory should now contain many
 WAV files which you can run directly in the command line with cvlc if you have
 VLC player installed. Otherwise, just play the WAV files in your player of
 choice.
 
 #### Providing your own score
-The Metrum score is just a textfile with no extensions. To provide your own
-score to Metrum, simple use the `-p` flag like such: `metrum -p my_score` or
-`cargo run -- -p my_score` in the metrum project directory. For more
+The Metrome score is just a textfile with no extensions. To provide your own
+score to Metrome, simple use the `-p` flag like such: `metrome -p my_score` or
+`cargo run -- -p my_score` in the metrome project directory. For more
 information on how to write a rhythm score, read the following section.
 
-## The Metrum Score
+## The Metrome Score
 
-The score metrum uses to create click track is just a simple text file. Here's
+The score metrome uses to create click track is just a simple text file. Here's
 a short example of what it looks like.
 
 
@@ -122,7 +122,7 @@ In the middle of a bar like a psycho
 | q q q=150 1/6 1/6 1/6 |
 ```
 
-> Note: When no tempo is specified, the Metrum defaults to `q = 120` or 120
+> Note: When no tempo is specified, the Metrome defaults to `q = 120` or 120
 > quarter notes per minute. Pretty sane if you ask me.
 
 ### Relative Tempo Changes
@@ -132,7 +132,7 @@ commonly find this in music that switched from 4/4 (simple time) to 6/8
 (compound time), where the pulse division turns from two to three stays the
 same length.
 
-In Metrum, the equivalent is `q=q.`. Simple, clean. You can do all sorts of
+In Metrome, the equivalent is `q=q.`. Simple, clean. You can do all sorts of
 wild things. You can also do this `1/6=q`, where the quarter notes are now as
 fast as the triplet quarter notes (essentially the same thing, but semantically
 and musically different.

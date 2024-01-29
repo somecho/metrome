@@ -1,5 +1,5 @@
 [package]
-name = "metrum"
+name = "metrome"
 version = "0.1.18"
 edition = "2021"
 authors = ["Somē Cho <itssomicho@gmail.com>"]
@@ -9,11 +9,11 @@ description="Create click tracks from any rhythm"
 license="GPL-3.0"
 
 [lib]
-name = "metrum"
+name = "metrome"
 path ="src/lib.rs"
 
 [[bin]]
-name = "metrum"
+name = "metrome"
 path = "src/main.rs"
 
 [dependencies]
