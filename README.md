@@ -20,14 +20,15 @@ signature will mess up practicing with a normal metronome.
 page](https://www.rust-lang.org/tools/install) to install Rust.
 
 #### Quickstart
-For a quick start, you can clone this repo and render the examples. These
-instructions work for Mac and Linux users. If you know Powershell, feel free to
-contribute a matching script!
+For a quick start, you can clone this repo and render the examples.
 
-```bash
+```
 git clone https://github.com/somecho/metrome
 cd metrome
+# Linux & Mac
 ./render_examples.sh
+# Windows
+./render_examples.ps1
 ```
 
 After running this, the root of the metrome directory should now contain many

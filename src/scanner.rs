@@ -20,6 +20,7 @@ pub fn scan(score: String) -> Result<Vec<Token>, MetrumError> {
         match curr {
             ' ' => {}
             '\n' => {}
+            '\r' => {}
             '.' => tokens.push(Token::Dot),
             '=' => tokens.push(Token::Equal),
             '|' => tokens.push(Token::Barline),
