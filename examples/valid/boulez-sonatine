@@ -1,0 +1,14 @@
+e = 60
+| ex4 | ex6 | ex2 sx3 | ex4 |
+| sx3 ex2 | ex8 | ex4 | ex4 | ex5 |
+| ex8 | sx6 | ex2 sx3 | ex4 | sx3 | 
+| ex4 | ex3 | sx3 | sx6 | sx5 | ex7 |
+| sx5 | ex3 | sx5 | ex2 | 
+| sx9 | ex2 sx3 |%3 ex4 |
+| sx3 ex2 | ex8 | 
+q = 68
+| ex3 | ex5 |%2 
+| sx3 | e e | ex4 | sx3 | e e |
+| e ex3 | ex4 | ex3 | sx3 | e e | 
+| sx3 | e e | sx3 | e e |%2 
+| ex4 | ex5 | ex4 | e e sx3 | sx3 e |
