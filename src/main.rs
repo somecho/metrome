@@ -6,6 +6,8 @@ use metrome::{scanner, score::Score};
 struct Args {
     #[arg(short, long)]
     path: String,
+    #[arg(short, long)]
+    output: Option<String>,
 }
 
 fn main() -> Result<(), hound::Error> {
@@ -15,7 +17,10 @@ fn main() -> Result<(), hound::Error> {
         true => '\\',
         _ => '/',
     };
-    let output_path = format!("{}.wav", &args.path.split(separator).last().unwrap());
+    let output_path = match &args.output {
+        Some(path) => path.clone(),
+        None => format!("{}.wav", &args.path.split(separator).last().unwrap()),
+    };
     let tokens = scanner::scan(file).unwrap();
     let score = Score::new(tokens).unwrap();
     score.write_click_track(&output_path)
