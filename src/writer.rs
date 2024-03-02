@@ -28,17 +28,10 @@ impl Metronome {
 }
 
 impl Score {
-    /// writes the rhythmic score out as a click track wav file
-    pub fn write_click_track(&self, path: &str) -> Result<(), hound::Error> {
+    /// Converts the score to raw audio data that will be used for writing the score later
+    pub fn wav_buffer(&self, sample_rate: u32) -> Vec<i16> {
         let metronome = Metronome::new();
-        let spec = hound::WavSpec {
-            channels: 1,
-            sample_rate: 44100,
-            bits_per_sample: 16,
-            sample_format: hound::SampleFormat::Int,
-        };
-        let mut writer = hound::WavWriter::create(path, spec)?;
-        let num_samples = units::ms_to_samples(self.total_duration(), spec.sample_rate) as usize;
+        let num_samples = units::ms_to_samples(self.total_duration(), sample_rate) as usize;
         let mut buf: Vec<i16> = vec![0; num_samples];
         let mut position = 0;
         for bar in self.bars.iter() {
@@ -50,10 +43,21 @@ impl Score {
                 for (index, sample) in beat.iter().enumerate() {
                     buf[index + position] = *sample;
                 }
-                position += units::ms_to_samples(dur.ms, spec.sample_rate) as usize;
+                position += units::ms_to_samples(dur.ms, sample_rate) as usize;
             }
         }
-        for sample in buf.iter() {
+        buf
+    }
+    /// writes the rhythmic score out as a click track wav file
+    pub fn write_click_track(&self, path: &str) -> Result<(), hound::Error> {
+        let spec = hound::WavSpec {
+            channels: 1,
+            sample_rate: 44100,
+            bits_per_sample: 16,
+            sample_format: hound::SampleFormat::Int,
+        };
+        let mut writer = hound::WavWriter::create(path, spec)?;
+        for sample in self.wav_buffer(spec.sample_rate).iter() {
             writer.write_sample(*sample)?
         }
         Ok(())
