@@ -39,7 +39,8 @@ choice.
 #### Providing your own score
 The Metrome score is just a textfile with no extensions. To provide your own
 score to Metrome, simple use the `-p` flag like such: `metrome -p my_score` or
-`cargo run -- -p my_score` in the metrome project directory. For more
+`cargo run -- -p my_score` in the metrome project directory. Use the
+`-o/--output` flag to specify a custom output path. For more
 information on how to write a rhythm score, read the following section.
 
 #### Programmatic Usage Example
@@ -157,8 +158,7 @@ Check out the [examples](./examples/valid) for reference.
 ## Roadmap 
 - [ ] take `stdin` input
 - [ ] floating point tempo 
-- [ ] web interface
-- [ ] `-o` flag for specifying custom output path
+- [x] `-o` flag for specifying custom output path
 
 ---
 
